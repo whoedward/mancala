@@ -148,7 +148,7 @@ class Player:
             nb.makeMove(self, m)
             #try the move
             opp = Player(self.opp, self.type, self.ply)
-            s = opp.alphaMin(nb, ply-1, turn)
+            s = opp.alphaMin(nb, ply-1, turn,alpha,beta)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -158,7 +158,7 @@ class Player:
         return score, move
         #returns the score adn the associated moved
         '''return (-1,1)'''
-    def alphaMax(self, board, ply, turn):
+    def alphaMax(self, board, ply, turn, alpha, beta):
         """ Find the minimax value for the next move for this player
         at a given board configuation. Returns score."""
         if board.gameOver():
@@ -173,7 +173,7 @@ class Player:
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.minValue(nextBoard, ply-1, turn)
+            s = opponent.alphaMin(nextBoard, ply-1, turn,alpha,beta)
             #print "s in maxValue is: " + str(s)
             if s > score:
                 score = s
@@ -183,7 +183,7 @@ class Player:
                 alpha = score
         return score
     
-    def alphaMin(self, board, ply, turn):
+    def alphaMin(self, board, ply, turn, alpha, beta):
         """ Find the minimax value for the next move for this player
             at a given board configuation. Returns score."""
         if board.gameOver():
@@ -198,12 +198,12 @@ class Player:
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.alphaMax(nextBoard, ply-1, turn)
+            s = opponent.alphaMax(nextBoard, ply-1, turn, alpha, beta)
             #print "s in minValue is: " + str(s)
             if s < score:
                 score = s
             if score <= alpha: 
-                return score 
+                return score #Prune the rest of the nodes
             if score < beta: 
                 beta = score
         return score
