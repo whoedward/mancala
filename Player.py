@@ -229,7 +229,7 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            val, move = self.minimaxMove(board, self.ply)
+            val, move = self.alphaBetaMove(board, 8)
             print "chose move", move, " with value", val
             return move
             # TODO: Implement a custom player
