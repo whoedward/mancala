@@ -5,3 +5,9 @@ Rules:
 4) If last stone on own Mancala, gets another turn.
 5) If last stone on his or her side, player captures all stones in pit directly across, AND the last stone placed.
 6) Game ends when player cannot make a move, and oppoenent captures remaining stones on the board.
+
+Heuristics:
+1) Mancala difference
+2) Mancala stones already in own
+3) Empty cups
+4) Number of stone on each side

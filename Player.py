@@ -178,6 +178,7 @@ class Player:
             if s > score:
                 score = s
             if score >= beta:
+                print "prunemax"
                 return score #Prune the rest of the moves
             if score > alpha:
                 alpha = score
@@ -203,6 +204,7 @@ class Player:
             if s < score:
                 score = s
             if score <= alpha: 
+                print "prunemin"
                 return score #Prune the rest of the nodes
             if score < beta: 
                 beta = score
@@ -229,7 +231,7 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            val, move = self.alphaBetaMove(board, 8)
+            val, move = self.alphaBetaMove(board, 9)
             print "chose move", move, " with value", val
             return move
             # TODO: Implement a custom player
@@ -237,7 +239,6 @@ class Player:
             # function.  You may use whatever search algorithm and scoring
             # algorithm you like.  Remember that your player must make
             # each move in about 10 seconds or less.
-            '''return -1'''
         else:
             print "Unknown player type"
             return -1
@@ -256,7 +257,6 @@ class chl433(Player):
         elif board.hasWon(self.opp):
             return 0.0
 
-        print "Calling my score function!!"
         if self.num==1 and board.scoreCups[0]>board.scoreCups[1]:
             return 75.0
         elif self.num==2 and board.scoreCups[0]>board.scoreCups[1]:
@@ -267,14 +267,5 @@ class chl433(Player):
             return 75.0
         else:
             return 50.0
-        '''
-        #Define the player's cup and the opponent's cup
-        if self.num==1:
-            cup=board.P1Cups
-            oppcup=board.P2Cups
-        else: #This means the player is player 2
-            cup=board.P2Cups
-            oppcup=board.P1Cups
-        '''
 
         
