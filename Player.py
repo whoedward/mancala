@@ -1,18 +1,22 @@
-# File: Player.py
-# Author(s) names AND netid's:
-# Date:
-# Group work statement: <please type the group work statement
-#      given in the pdf here>
+# File: chl433.py
+# Members and netids:
+# Chung Ho Lee, chl433
+# Edward Hu, ehe839
+# Atul Adhikari, aca089
+
+# Date: 4/19/2016
+# Group work statement: All group members were present and contributing during all work on this project
+
 # Defines a simple artificially intelligent player agent
 # You will define the alpha-beta pruning search algorithm
 # You will also define the score function in the MancalaPlayer class,
 # a subclass of the Player class.
 
-
 from random import *
 from decimal import *
 from copy import *
 from MancalaBoard import *
+from math import *
 
 # a constant
 INFINITY = 1.0e400
@@ -157,7 +161,6 @@ class Player:
         #return the best score and move so far
         return score, move
         #returns the score adn the associated moved
-        '''return (-1,1)'''
     def alphaMax(self, board, ply, turn, alpha, beta):
         """ Find the minimax value for the next move for this player
         at a given board configuation. Returns score."""
@@ -178,7 +181,6 @@ class Player:
             if s > score:
                 score = s
             if score >= beta:
-                print "prunemax"
                 return score #Prune the rest of the moves
             if score > alpha:
                 alpha = score
@@ -204,7 +206,6 @@ class Player:
             if s < score:
                 score = s
             if score <= alpha: 
-                print "prunemin"
                 return score #Prune the rest of the nodes
             if score < beta: 
                 beta = score
@@ -231,7 +232,7 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            val, move = self.alphaBetaMove(board, 9)
+            val, move = self.alphaBetaMove(board, 6)
             print "chose move", move, " with value", val
             return move
             # TODO: Implement a custom player
@@ -253,19 +254,37 @@ class chl433(Player):
         """ Evaluate the Mancala board for this player """
 
         if board.hasWon(self.num):
-            return 100.0
+            return 10000.0
         elif board.hasWon(self.opp):
-            return 0.0
+            return -10000.0
 
-        if self.num==1 and board.scoreCups[0]>board.scoreCups[1]:
-            return 75.0
-        elif self.num==2 and board.scoreCups[0]>board.scoreCups[1]:
-            return 25.0
-        elif self.num==1 and board.scoreCups[0]<board.scoreCups[1]:
-            return 25.0
-        elif self.num==2 and board.scoreCups[0]<board.scoreCups[1]:
-            return 75.0
+        if self.num==1:
+            a=0
+            b=1
         else:
-            return 50.0
+            a=1
+            b=0
 
-        
+        diff=board.scoreCups[a]-board.scoreCups[b]
+        #difference can be from 0 to 48
+
+        ecupscore=0
+        p1cup=0
+        p2cup=0
+        for cup in range(6): #Checking for empty cups
+            if board.P1Cups[cup]==0 and a==0:
+                ecupscore=ecupscore+1
+            if board.P2Cups[cup]==0 and a==0:
+                ecupscore=ecupscore-1
+            if board.P1Cups[cup]==0 and a==1:
+                ecupscore=ecupscore-1
+            if board.P2Cups[cup]==0 and a==1:
+                ecupscore=ecupscore+1
+            p1cup=p1cup+board.P1Cups[cup]
+            p2cup=p2cup+board.P1Cups[cup]
+
+        cupdiff=p1cup-p2cup
+        if a==1:
+            cupdiff=-cupdiff
+
+        return diff*(sqrt(board.scoreCups[a])+5)+5*ecupscore+1.5*cupdiff

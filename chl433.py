@@ -181,7 +181,6 @@ class Player:
             if s > score:
                 score = s
             if score >= beta:
-                print "prunemax"
                 return score #Prune the rest of the moves
             if score > alpha:
                 alpha = score
@@ -207,7 +206,6 @@ class Player:
             if s < score:
                 score = s
             if score <= alpha: 
-                print "prunemin"
                 return score #Prune the rest of the nodes
             if score < beta: 
                 beta = score
