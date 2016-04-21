@@ -135,9 +135,9 @@ class Player:
     # and/or a different move search order.
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
-        alpha=-INFINITY
-        beta=INFINITY
-        move = -1
+        alp=-INFINITY #Alpha is lower bound
+        bt=INFINITY #Beta is higher bound
+        move = -1 #No move has been selected, set to -1
         score = -INFINITY
         turn = self
         for m in board.legalMoves(self):
@@ -152,7 +152,7 @@ class Player:
             nb.makeMove(self, m)
             #try the move
             opp = Player(self.opp, self.type, self.ply)
-            s = opp.alphaMin(nb, ply-1, turn,alpha,beta)
+            s = opp.alphaMin(nb, ply-1, turn,alp,bt)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -161,12 +161,12 @@ class Player:
         #return the best score and move so far
         return score, move
         #returns the score adn the associated moved
-    def alphaMax(self, board, ply, turn, alpha, beta):
+    def alphaMax(self, board, ply, turn, alp, bt):
         """ Find the minimax value for the next move for this player
         at a given board configuation. Returns score."""
         if board.gameOver():
             return turn.score(board)
-        score = -INFINITY
+        score = -INFINITY #Set score to small number
         for m in board.legalMoves(self):
             if ply == 0:
                 #print "turn.score(board) in max value is: " + str(turn.score(board))
@@ -176,22 +176,22 @@ class Player:
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.alphaMin(nextBoard, ply-1, turn,alpha,beta)
+            s = opponent.alphaMin(nextBoard, ply-1, turn,alp,bt)
             #print "s in maxValue is: " + str(s)
-            if s > score:
+            if s > score: #If existing score is smaller, we want to choose s which is bigger
                 score = s
-            if score >= beta:
+            if score >= bt: #Condition for pruning
                 return score #Prune the rest of the moves
-            if score > alpha:
-                alpha = score
+            elif score > alp: #Condition to update alpha, since alpha represents the maximum node
+                alp = score
         return score
     
-    def alphaMin(self, board, ply, turn, alpha, beta):
+    def alphaMin(self, board, ply, turn, alp, bt):
         """ Find the minimax value for the next move for this player
             at a given board configuation. Returns score."""
         if board.gameOver():
             return turn.score(board)
-        score = INFINITY
+        score = INFINITY #Set score to big number
         for m in board.legalMoves(self):
             if ply == 0:
                 #print "turn.score(board) in min Value is: " + str(turn.score(board))
@@ -201,14 +201,14 @@ class Player:
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.alphaMax(nextBoard, ply-1, turn, alpha, beta)
+            s = opponent.alphaMax(nextBoard, ply-1, turn, alp, bt)
             #print "s in minValue is: " + str(s)
-            if s < score:
+            if s < score: #If existing score is bigger, we want to choose s which is smaller
                 score = s
-            if score <= alpha: 
+            if score <= alp: #Condition for pruning
                 return score #Prune the rest of the nodes
-            if score < beta: 
-                beta = score
+            elif score < bt: #Condition to update beta, since beta represents minimum node
+                bt = score
         return score
                 
     def chooseMove(self, board):
@@ -232,7 +232,7 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            val, move = self.alphaBetaMove(board, 6)
+            val, move = self.alphaBetaMove(board, 7)
             print "chose move", move, " with value", val
             return move
             # TODO: Implement a custom player
@@ -254,10 +254,11 @@ class chl433(Player):
         """ Evaluate the Mancala board for this player """
 
         if board.hasWon(self.num):
-            return 10000.0
+            return 10000.0 #Has won game
         elif board.hasWon(self.opp):
-            return -10000.0
+            return -10000.0 #Has lost game
 
+        #Check who has which player id
         if self.num==1:
             a=0
             b=1
@@ -268,9 +269,9 @@ class chl433(Player):
         diff=board.scoreCups[a]-board.scoreCups[b]
         #difference can be from 0 to 48
 
-        ecupscore=0
-        p1cup=0
-        p2cup=0
+        ecupscore=0 #Number of empty cups difference
+        p1cup=0 #How many marbles on 1 side
+        p2cup=0 #How many marbles on 2 side
         for cup in range(6): #Checking for empty cups
             if board.P1Cups[cup]==0 and a==0:
                 ecupscore=ecupscore+1
@@ -283,8 +284,13 @@ class chl433(Player):
             p1cup=p1cup+board.P1Cups[cup]
             p2cup=p2cup+board.P1Cups[cup]
 
-        cupdiff=p1cup-p2cup
+        cupdiff=p1cup-p2cup #Marble difference between 2 sides
         if a==1:
             cupdiff=-cupdiff
 
+        #Final score function with some adjustments
+        #We have different weights for each score because certain features are more deterministic to final outcome
+        #The diff multiplier will influence the score the most because we feel the difference in the mancala stones is directly correlated to which player wins
+        #ecup multiplier is less because it can change easily
+        #cup diff can also be flexible because it changes frequently during the course of the game
         return diff*(sqrt(board.scoreCups[a])+5)+5*ecupscore+1.5*cupdiff
